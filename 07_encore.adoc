@@ -1,0 +1,170 @@
+== Bonus
+
+
+
+=== KRaft architecture
+
+image:images/zoomKRaft.svg[width=70%]
+
+[.notes]
+--
+* métadata stockées dans un topic Kafka interne : 1 partition
+* cache et offset pour éviter de relire tout le log à chaque démarrage
+* event sourcing : persiste tous les opérations menant à l'état courant
+* meilleure performance : de l'ordre de secondes à démarrer, au lieu de minutes côté zookeeper
+--
+
+=== KStreams Foreign Key Extractor
+
+Avant :
+
+
+[.large-code-exemple]
+--
+
+[source,java]
+----
+// Topic orders, key : {clientId, orderId}, value : {productId, quantity}
+// Topic clients, key : {clientId}, value : {name, address}
+
+// Étape intermédiaire : Ajouter orderId à la valeur
+KTable<OrderKey, OrderWithClient> ordersWithClient = orders.mapValues(
+    (key, order) -> new OrderWithClient(key.getClientId(), order.getProductId(), order.getQuantity()),
+);
+
+KTable<OrderKey, EnrichedOrder> enriched = ordersWithClient.join(
+    clients,
+    // Extracteur de clé étrangère : uniquement la valeur
+    orderWithClient -> new ClientKey(orderWithClient.getClientId()),
+    (orderWithClient, client) -> EnrichedOrder.of(orderWithClient.getProductId(), orderWithClient.getQuantity(), client.getName(), client.getAddress()),
+);
+----
+
+--
+
+[%notitle]
+=== Après
+
+Après :
+
+
+[.large-code-exemple]
+--
+
+[source,java]
+----
+KTable<OrderKey, EnrichedOrder> enriched = orders.join(
+    clients,
+    // Extracteur de clé étrangère : utilise clé (OrderKey) et valeur (Order)
+    (orderKey, order) -> new ClientKey(orderKey.getClientId()),
+    (order, client) -> EnrichedOrder.of(order.getProductId(), order.getQuantity(), client.getName(), client.getAddress()),
+);
+----
+
+--
+
+[.notes]
+--
+* ajoute une surcharge de KTable.join (et leftJoin...)
+* KIP-1104 - 4.0.0
+--
+
+
+=== Protection contre les deadlocks dans le Producer
+
+* *Problème*: `flush()` dans callback de `send()` → Deadlock sur ioThread
+** Timeout confusant, app bloquée, diagnostic difficile
+* *Solution*: `KafkaException` immédiate
+
+[.notes]
+--
+* Le callback de Producer.send() est exécuté par le thread réseau du producteur (ioThread).
+* Si, dans ce callback, le code appelle producer.flush(), on crée une attente circulaire:
+** flush() attend que le thread réseau vide les buffers,
+** mais le thread réseau est justement occupé à exécuter le callback.
+* KIP-1118 - 4.1.0
+--
+
+
+=== Amélioration gestion d'erreurs transactionnelles dans le Producer
+
+* *Problème*: Exceptions floues pour transactions (Retriable? Fatal? Abortable?)
+
+[.notes]
+--
+* rappel : Transactions Kafka pour read-process-write atomique ou write dans au moins deux topics
+* KIP-1050 - 4.1.0
+--
+
+[%notitle]
+=== Solution
+
+* *Solution*: 4 catégories + hiérarchie claire
+** **Retriable** (ex: TimeoutException) : Retry auto
+*** **RefreshRetriable** (ex: UnknownTopic) : Refresh metadata + retry
+** **Abortable** : Abort transaction (ex: CommitFailed)
+** **ApplicationRecoverable** : Restart app/producer (ex: ProducerFenced)
+** **InvalidConfig** : Fix config (ex: AuthError)
+
+
+[.notes]
+--
+* RefreshRetriable : Le client rafraîchit les métadonnées puis réessaie
+--
+
+
+[%notitle]
+=== Outils de gestion des groupes
+
+image:images/groupes.svg[width=80%]
+
+[.notes]
+--
+* Aujourd'hui, “group” ne veut pas dire seulement “consumer group classique”
+* KIP-1043
+--
+
+
+
+=== Outils de gestion des groupes
+
+
+=== Nouvel outil kafka-groups.sh
+
+[.large-code-exemple]
+--
+
+[source,bash]
+----
+$ bin/kafka-groups.sh --bootstrap-server localhost:9092 --list
+GROUP                   TYPE          PROTOCOL
+old-consumer-group      Classic       consumer
+new-consumer-group      Consumer      consumer
+connect-cluster         Classic       connect
+share-group             Share         share
+schema-registry         Classic       sr
+simple-consumer-group   Classic
+----
+
+--
+
+[.notes]
+--
+* Aujourd'hui, “group” ne veut pas dire seulement “consumer group classique”
+* un nouvel outil kafka-groups.sh pour lister tous les types de groupes
+* des API Admin plus nettes (listGroups universel, describeClassicGroups)
+* KIP-1043
+--
+
+=== Adaptation des outils existants
+
+* kafka-consumer-groups.sh
+* kafka-share-groups.sh
+
+[.notes]
+--
+* Enrichir les outils d'admin (kafka-consumer-groups.sh, kafka-share-groups.sh) 
+* Enrichir AdminClient pour exposer les nouveaux indicateurs introduits par le protocole de groupe KIP-848:
+** Statut de migration des membres “classic → consumer” (flag upgraded)
+* KIP-1099
+--

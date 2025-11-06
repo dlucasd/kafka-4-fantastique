@@ -1,0 +1,35 @@
+= Kafka 4, fantastique ?
+:docinfo: private
+:source-highlighter: highlight.js
+:autofit-option:
+:icons: font
+:revealjs_theme: white
+:revealjs_controls: false
+:revealjs_history: true
+:revealjs_pdfseparatefragments: false
+:customcss: css/meetup.css
+:title-slide-background-color: #03182f
+
+// primary
+// dark #03182f
+// white #f2f8ff
+// accent #2764ff
+
+// secondary
+// dark #770031
+// white #ffe7ec
+// accent #f22e75
+
+[.notes]
+--
+--
+
+include::01_intro.adoc[]
+include::02_migration.adoc[]
+include::03_feature_400.adoc[]
+include::04_feature_410.adoc[]
+include::05_frameworks.adoc[]
+include::06_conclusion.adoc[]
+include::07_encore.adoc[]
+
+

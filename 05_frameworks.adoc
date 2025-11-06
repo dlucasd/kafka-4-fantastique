@@ -1,0 +1,43 @@
+
+== Support framework
+
+=== Spring
+
+[.step.without-bullets]
+* *Version*: Spring Kafka 4.0.0-RC1
+* 🛠️ Passage total à KRaft, suppression ZooKeeper
+* 🧪 Embedded Kafka pour les tests sur KRaft
+* 🔄 Nouveau protocole rebalance (propriété Spring Boot)
+* 👥 Support Kafka Queues
+
+[%notitle]
+=== Suite
+
+[.step.without-bullets]
+* 📊 Observabilité enrichie avec les métriques clients
+* 🎯 Alignement Spring Framework 7: Jackson 3, Spring Retry natif
+* ⚠️ RC, release pour fin d'année
+
+[.notes]
+--
+* La dépendance Spring Retry est supprimée au profit du support retry natif de Spring Framework 7.
+* attention si vous utilisiez zookeeperPort, zkConnectionTimeout, and zkSessionTimeout
+* https://docs.spring.io/spring-kafka/reference/4.0/whats-new.html
+--
+
+
+=== Quarkus
+
+[.step.without-bullets]
+* *Version*: Quarkus 3.24+
+* Nouveau protocole rebalance ✅
+* KRaft ✅
+* Métriques clients ❌
+* Kafka Queues ❌
+
+[.notes]
+--
+* utilisation du kafka-client 4.0.0 depuis la 3.24 (Juin 2025)
+* https://quarkus.io/blog/quarkus-3-24-released/
+--
+

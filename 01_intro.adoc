@@ -1,0 +1,223 @@
+[%notitle.columns.is-vcentered.transparency]
+== Présentation
+
+[.column.has-text-right.is-two-fifth]
+****
+
+[.important-text]
+--
+*Damien Lucas*
+
+Software Engineer
+--
+
+image:images/Logo-Mirakl-Blue-Horizontal.png[width=200]
+
+[.vertical-align-middle]
+icon:github[] dlucasd
+
+****
+
+[.column]
+--
+image::images/dlucas.png[]
+--
+
+[%notitle]
+=== Mirakl
+
+image::images/mirakl.svg[opts=inline, width=120%]
+
+[.notes]
+--
+* éditeur de logiciels dans l'univers des marketplaces
+* j'interviens sur la partie spring et kafka
+--
+
+=== Commits par release
+
+[.chart-svg]
+++++
+<svg viewBox="0 0 1500 620" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Commits par release">
+  <defs>
+    <linearGradient id="fillArea" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#29a7b5" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#29a7b5" stop-opacity="0.12"/>
+    </linearGradient>
+    <style>
+      .axis { stroke: rgba(0,0,0,0.35); stroke-width: 1; }
+      .grid { stroke: rgba(0,0,0,0.10); stroke-width: 1; }
+      .xlabel, .ylabel { fill: rgba(0,0,0,0.82); font: 18px "Roboto","Inter",system-ui,sans-serif; }
+      .xlabel { text-anchor: middle; }
+      .ylabel { text-anchor: end; }
+      .line { fill: none; stroke: #28a3b1; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+      .dot { fill: #28a3b1; stroke: #ffffff; stroke-width: 2; }
+      .value { fill: #127a86; font: 16px "Roboto","Inter",system-ui,sans-serif; text-anchor: middle; }
+    </style>
+  </defs>
+
+  <!-- Marges -->
+  <g transform="translate(110,60)">
+    <!-- Grille -->
+    <g>
+      <line class="grid" x1="0" y1="480" x2="1280" y2="480"/>
+      <line class="grid" x1="0" y1="360" x2="1280" y2="360"/>
+      <line class="grid" x1="0" y1="240" x2="1280" y2="240"/>
+      <line class="grid" x1="0" y1="120" x2="1280" y2="120"/>
+      <line class="grid" x1="0" y1="0"   x2="1280" y2="0"/>
+    </g>
+
+    <!-- Axes -->
+    <line class="axis" x1="0" y1="480" x2="1280" y2="480"/>
+    <line class="axis" x1="0" y1="0"   x2="0"    y2="480"/>
+
+    <!-- Ticks Y -->
+    <text class="ylabel" x="-12" y="484">0</text>
+    <text class="ylabel" x="-12" y="364">400</text>
+    <text class="ylabel" x="-12" y="244">800</text>
+    <text class="ylabel" x="-12" y="124">1200</text>
+    <text class="ylabel" x="-12" y="4">1600</text>
+
+    <g id="series">
+      <!-- Zone -->
+      <path fill="url(#fillArea)" d="
+        M0,340.5
+        L60.95,300.3
+        L121.90,337.1
+        L182.86,363.2
+        L243.81,343.0
+        L304.76,307.2
+        L365.71,327.3
+        L426.67,274.7
+        L487.62,318.0
+        L548.57,283.5
+        L609.52,244.9
+        L670.48,369.9
+        L731.43,371.1
+        L792.38,351.2
+        L853.33,328.6
+        L914.29,320.7
+        L975.24,308.8
+        L1036.19,288.8
+        L1097.14,187.5
+        L1158.10,313.3
+        L1219.05,13.6
+        L1280.00,43.5
+        L1280,480 L0,480 Z"/>
+      <!-- Ligne -->
+      <path class="line" d="
+        M0,340.5
+        L60.95,300.3
+        L121.90,337.1
+        L182.86,363.2
+        L243.81,343.0
+        L304.76,307.2
+        L365.71,327.3
+        L426.67,274.7
+        L487.62,318.0
+        L548.57,283.5
+        L609.52,244.9
+        L670.48,369.9
+        L731.43,371.1
+        L792.38,351.2
+        L853.33,328.6
+        L914.29,320.7
+        L975.24,308.8
+        L1036.19,288.8
+        L1097.14,187.5
+        L1158.10,313.3
+        L1219.05,13.6
+        L1280.00,43.5"/>
+      <!-- Points -->
+      <g>
+        <circle class="dot" cx="0" cy="340.5" r="5"/>
+        <circle class="dot" cx="60.95" cy="300.3" r="5"/>
+        <circle class="dot" cx="121.90" cy="337.1" r="5"/>
+        <circle class="dot" cx="182.86" cy="363.2" r="5"/>
+        <circle class="dot" cx="243.81" cy="343.0" r="5"/>
+        <circle class="dot" cx="304.76" cy="307.2" r="5"/>
+        <circle class="dot" cx="365.71" cy="327.3" r="5"/>
+        <circle class="dot" cx="426.67" cy="274.7" r="5"/>
+        <circle class="dot" cx="487.62" cy="318.0" r="5"/>
+        <circle class="dot" cx="548.57" cy="283.5" r="5"/>
+        <circle class="dot" cx="609.52" cy="244.9" r="5"/>
+        <circle class="dot" cx="670.48" cy="369.9" r="5"/>
+        <circle class="dot" cx="731.43" cy="371.1" r="5"/>
+        <circle class="dot" cx="792.38" cy="351.2" r="5"/>
+        <circle class="dot" cx="853.33" cy="328.6" r="5"/>
+        <circle class="dot" cx="914.29" cy="320.7" r="5"/>
+        <circle class="dot" cx="975.24" cy="308.8" r="5"/>
+        <circle class="dot" cx="1036.19" cy="288.8" r="5"/>
+        <circle class="dot" cx="1097.14" cy="187.5" r="5"/>
+        <circle class="dot" cx="1158.10" cy="313.3" r="5"/>
+        <circle class="dot" cx="1219.05" cy="13.6" r="5"/>
+        <circle class="dot" cx="1280.00" cy="43.5" r="5"/>
+      </g>
+    </g>
+
+    <g>
+      <text class="xlabel" x="61" y="506">2.0.0</text>
+      <text class="xlabel" x="61" y="526">07/2018</text>
+      <!-- <text class="xlabel" x="121.90" y="506">2.1.0</text>
+      <text class="xlabel" x="243.81" y="506">2.3.0</text> -->
+      <text class="xlabel" x="365.71" y="506">2.5.0</text>
+      <!-- <text class="xlabel" x="487.62" y="506">2.7.0</text> -->
+      <text class="xlabel" x="609.52" y="506">3.0.0</text>
+      <text class="xlabel" x="609.52" y="526">09/2021</text>
+      <!-- <text class="xlabel" x="731.43" y="506">3.2.0</text>
+      <text class="xlabel" x="853.33" y="506">3.4.0</text> -->
+      <text class="xlabel" x="914.33" y="506">3.5.0</text>
+      <!-- <text class="xlabel" x="975.24" y="506">3.6.0</text>
+      <text class="xlabel" x="1097.14" y="506">3.8.0</text>
+      <text class="xlabel" x="1158.10" y="506">3.9.0</text> -->
+      <text class="xlabel" x="1219.05" y="506">4.0.0</text>
+      <text class="xlabel" x="1219.05" y="526">03/2025</text>
+      <g class="fragment">
+      <text class="xlabel" x="1280.00" y="94">4.1.0</text>
+      <text class="xlabel" x="1280.00" y="114">09/2025</text>
+      </g>
+    </g>
+    
+    <g>
+      <!-- 2.0.0 = 596 -->
+      <text class="value" x="61" y="290">596</text>
+      <!-- 3.0.0 = 783 -->
+      <text class="value" x="609.52" y="230">783</text>
+      <!-- 3.8.0 = 975 
+      <text class="value" x="1097.14" y="172">975</text>
+       3.9.0 = 558 
+      <text class="value" x="1158.10" y="340">558</text> -->
+      <!-- 4.0.0 = 1552 -->
+      <text class="value" x="1219.05" y="-6">1552</text>
+      <!-- 4.1.0 = 1552 
+      <text class="value" x="1280.00" y="30">1455</text> -->
+    </g>
+  </g>
+</svg>
+++++
+
+
+[.notes]
+--
+* historique commits depuis 7 ans
+* qui dit beaucoup de commits, dit aussi beaucoup de KIP
+--
+
+=== Kafka Improvement Proposals (KIP)
+
+[.step.without-bullets]
+
+[%notitle]
+=== KIP
+
+image:images/heatMap.svg[width=80%]
+
+
+[.notes]
+--
+* un peu le même process que Java avec les JEP
+* j'ai sélectionné ce qui me paraissait le plus intéressant
+* sans message contraire, tout ce qui est présenté est disponible en production
+--
+
+

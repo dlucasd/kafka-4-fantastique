@@ -1,0 +1,295 @@
+== Notes
+
+=== Vue d'ensemble
+
+4.0.0 : une release “pivot” avec beaucoup de changes de fond, d'alignement et de nettoyage, plus des fondations KRaft/Controller et de la dette technique résorbée.
+4.1.0 : une release orientée qualité d'exploitation (metrics, naming explicite, cohérence), stabilité et sécurité côté clients/Streams.
+4.2.0 : semble une release très “DevEx + observabilité + réglages fins de coordination/perf”, avec plusieurs dépréciations de vieilles briques.
+
+=== Quelques chiffres
+
+1.1.0 : 470 commits, 61 contributeurs, Files changed : 1176
+2.0.0 : 596 commits, 61 contributeurs, Files changed : 1586
+2.1.0 : 478 commits, 61 contributeurs, Files changed : 1401
+2.2.0 : 389 commits, 61 contributeurs, Files changed : 1163
+2.3.0 : 460 commits, 61 contributeurs, Files changed : 1171
+2.4.0 : 576 commits, 61 contributeurs, Files changed : 1628
+2.5.0 : 509 commits, 61 contributeurs, Files changed : 1210
+2.6.0 : 683 commits, 61 contributeurs, Files changed : 1397
+2.7.0 : 539 commits, 80 contributeurs, Files changed : 1493
+2.8.0 : 655 commits, 61 contributeurs, Files changed : 2093
+3.0.0 : 783 commits, 71 contributeurs, Files changed : 2232
+3.1.0 : 367 commits, 80 contributeurs, Files changed : 1168
+3.2.0 : 363 commits, 100 contributeurs, Files changed : 1111
+3.3.0 : 432 commits, 82 contributeurs, Files changed : 1232
+3.4.0 : 491 commits, 83 contributeurs, Files changed : 1368
+3.5.0 : 531 commits, 68 contributeurs, Files changed : 1826
+3.6.0 : 583 commits, 72 contributeurs, Files changed : 1695
+3.7.0 : 643 commits, 64 contributeurs, Files changed : 1688
+3.8.0 : 975 commits, 77 contributeurs, Files changed : 2362
+3.9.0 : 558 commits, 66 contributeurs, Files changed : 3342
+4.0.0 : 1552 commits, 51 contributeurs, Files changed : 3543
+4.1.0 : 1455 commits, 75 contributeurs, Files changed : 3409
+
+=== Déscopé :
+
+==== Rebalance rack-aware plus efficace
+
+* rebalance rack-aware plus efficace (gros groupes/cloud) — impact perf/capacité.
+* KIP-1101
+
+==== Enable clients to rebootstrap based on timeout or error code
+
+* Enable clients to rebootstrap based on timeout or error code
+
+Comportement côté client (résumé) :
+
+* On mesure le temps depuis la 1re tentative de metadata refresh. Si aucune réponse “valide” (avec au moins 1 broker) avant trigger.ms, on ferme les connexions et on rebootstrap.
+* Si on reçoit REBOOTSTRAP_REQUIRED, on ferme et on rebootstrap immédiatement.
+* Si metadata.recovery.strategy=none, on ne rebootstrap jamais (comportement antérieur).
+
+* KIP-1102 rend le rebootstrap fiable et “by default” en 4.0: timeout configurable (5 min) + signal protocolaire (REBOOTSTRAP_REQUIRED).
+* Résultat: moins d'applis bloquées avec un metadata obsolète; recovery automatique via bootstrap.servers sans tuning pénible de backoffs/timeouts.
+
+==== Tiered Storage (multi-KIP, progression 3.7→4.x)
+
+NB : n'est pas directement lié à 4.0.0 ou 4.1.0
+
+* Stateless Kafka
+* interface s3 / minio qui permet de stocker les segments de log dans un stockage externe : ils savent gérer la réplication, la durabilité, la disponibilité
+* donc le broker a besoin de faire moins de chose
+* compromis : latence plus élevée pour lire un segment de log
+
+==== Defensive transactions
+
+* rappel : cas d'usage des transactions dans Kafka
+ ** garantir la livraison exactly-once end to end
+ ** garantir la consistance des données dans plusieurs partitions/topics (écriture multi-partitions atomique)
+ ** garantir la consistance des données entre producteurs et consommateurs (read-process-write)
+* réduit les chances de zombie transaction lors des problèmes côté producer
+
+Idées clés de KIP-890 (en 3 piliers) :
+
+1. Bumper l'epoch à chaque transaction (nouveaux clients)
+
+* Chaque transaction est désormais identifiée de façon unique par (producerId, producerEpoch).
+* À la fin (commit/abort), le coordinator bump l'epoch et renvoie l'epoch “bumpé” au client.
+* Effet: si des messages d'une ancienne transaction arrivent en retard (ancien epoch), ils sont “fencés” (rejetés) → plus de mélange A/B.
+
+2. Ajouter implicitement les partitions à la transaction (nouveaux clients)
+
+* Avant: le client devait appeler AddPartitionsToTxn, source d'erreurs et de courses.
+* Maintenant: au premier Produce pour une partition durant une transaction, le broker vérifie et ajoute implicitement la partition au scope transactionnel (en coordination avec le TxnCoordinator).
+* Effet: moins d'APIs côté appli, moins de cas “buggy”, cohérence garantie côté serveur.
+
+3. Vérifier l'état pour les anciens clients (compat)
+
+* Si client ancien (ne supporte pas 1/2): le broker met la requête en “purgatory” et vérifie via AddPartitionsToTxn en mode verifyOnly que la partition est bien dans la transaction. Sinon, il renvoie une erreur (INVALID_TXN_STATE, etc.).
+* Effet: on évite d'écrire un record transactionnel si la transaction n'est pas réellement en cours.
+
+Feature gating (versioning) :
+
+* Introduction d'une “transaction protocol feature version” (analogue au Metadata Version) pour activer:
+** l'écriture de champs flexibles dans le topic de state
+** l'ensemble “epoch bump + add partitions implicite”
+* Le client choisit l'ancien ou le nouveau protocole selon ce qu'annoncent les brokers (et selon sa propre capacité).
+
+Compat upgrade/downgrade (intuition) :
+
+* Nouveaux clients + brokers compatibles: bénéficient d'epoch bump + add implicite.
+* Nouveaux clients + anciens brokers: retombent sur le protocole ancien (doivent encore appeler AddPartitionsToTxn).
+* Anciens clients + nouveaux brokers: le broker garde la vérification “verifyOnly” pour empêcher des écritures invalides; vieux flux continue de marcher, mais sans les bénéfices 1/2.
+
+
+[.notes]
+--
+* KIP-890 - 4.0.0
+--
+
+==== Eligible leader replica
+
+* Preview
+* Eligible leader replica subset of ISR. ELR sont plus sûr pour l'élection de leader
+
+etape 1. Le High Watermark (HWM) ne peut avancer que si l'ISR a au moins min.insync.replicas membres :
+
+* Avant: HWM pouvait avancer même si l'ISR < minISR. Mélangé à des acks 0/1, ça ambiguïse la durabilité.
+* Après KIP-966: pour que des messages deviennent visibles (HWM avance), ils doivent être répliqués sur au moins minISR répliques de l'ISR. Résultat: plus de cohérence entre acks/all et visibilité.
+
+etape 2. On sépare “réplication” (ISR) et “éligibilité leader” :
+
+* Nouvelle notion: ELR (Eligible Leader Replicas).
+* ISR: sert à la réplication (et donc au calcul du HWM). Peut temporairement être vide.
+* ELR: ensemble de répliques non-ISR mais dont on sait qu'elles ont, au minimum, toutes les données jusqu'au HWM; elles sont éligibles à devenir leader en élection “propre” quand l'ISR est insuffisant.
+
+Pourquoi c'est nécessaire: le piège “dernier réplique debout” :
+
+* Scénario classique: minISR=2, ISR a rétréci (pannes réseau), il ne reste qu'un leader dans l'ISR; ce leader subit un arrêt non propre et perd des données locales. Au redémarrage, il est réélu leader; les followers se recalent en tronquant leur log vers un leader qui a perdu des commits → perte globale de données.
+* Avec KIP-966: on exige que HWM n'avance plus tant que l'ISR < minISR; et, pour l'élection, on peut choisir une réplique ELR (hors ISR mais sûre jusqu'au HWM) plutôt que de réélire aveuglément le dernier leader qui a redémarré.
+
+
+
+[.notes]
+--
+* KIP-966 - 4.0.0 preview 
+--
+
+==== Pre-Vote pour l'élection de leader
+
+* pre vote for leader election
+
+* KIP-996 introduit Pre-Vote et l'état Prospective: avant de déclencher une vraie élection (et d'augmenter l'epoch), un nœud vérifie qu'il peut gagner. Sans majorité probable, il s'abstient.
+* Résultat: beaucoup moins d'élections inutiles et de leadership “ping-pong” en cas de partitions réseau — donc un contrôleur KRaft plus stable.
+
+
+[.notes]
+--
+* KIP-996 - 4.0.0
+--
+
+
+
+==== Image Docker officielle Apache Kafka
+
+Date : février 2024
+
+* image docker officielle 
+** petite taille, environ 450 mo unzip
+** rapide : 0,8 sec pour démarrer
+** support java 21
+* quid test container ?
+
+But :
+
+* Publier une image Docker officielle Apache Kafka (JVM) pour chaque release AK, sur Docker Hub (apache/kafka).
+* Offrir un chemin standard, documenté et testé, pour lancer Kafka en containers (AMD64 et ARM64), avec exemples, quick-start et support de config via env vars ou fichiers
+
+Pourquoi c'est utile :
+
+* Aujourd'hui, il n'existe pas d'image officielle ASF; la communauté utilise des images tierces (Bitnami, Confluent, ubuntu/kafka…), avec des compromis (taille, base, fonctionnalités, sources fermées, pas de KRaft…).
+* Une image officielle:
+** réduit l'incertitude (origine, CVE scanning, process de release aligné ASF),
+** facilite les POCs et environnements dev/test,
+** fournit des conventions stables pour la config.
+
+* Image officielle: Scala 2.13 + Java LTS (Java 21)
+
+* KIP-975
+
+=== 4.0.0 - 40 KIP
+
+
+KIP-1124: Providing a clear Kafka Client upgrade path : Ops & Administration
+KIP-1112: allow custom processor wrapping : Kafka Streams
+KIP-1106: Add duration based offset reset option for consumer clients : Clients
+KIP-1105: Make remote log manager thread-pool configs dynamic : Tiered Storage
+KIP-1104: Allow Foreign Key Extraction from Both Key and Value in KTable Joins : Kafka Streams
+KIP-1102: Enable clients to rebootstrap based on timeout or error code : Clients
+KIP-1099: Extend kafka-consumer-groups command line tool to support new consumer group : Ops & Administration
+KIP-1094: Add a new constructor with nextOffsets to ConsumerRecords : Clients
+KIP-1091: Improved Kafka Streams operator metrics : Observabilité
+KIP-1089: Allow disabling heartbeats replication in MirrorSourceConnector : Connect & MM2
+KIP-1087: Removing intermediateTopicsOption from StreamsResetter : Kafka Streams
+KIP-1085: Fix leaking *_DOC variables in StreamsConfig : Kafka Streams
+KIP-1082: Require Client-Generated IDs over the ConsumerGroupHeartbeat RPC : Protocoles & Groupes
+KIP-1080: Fix the typo: `maxlifeTimeMs` in CreateDelegationTokenOptions : Ops & Administration
+KIP-1079: Deprecate `delete-config` of TopicCommand : Ops & Administration
+KIP-1078: Remove Leaking Getter Methods in Joined Helper Class : Kafka Streams
+KIP-1077: Deprecate `ForeachProcessor` and move to internal package : Kafka Streams
+KIP-1076: Metrics for client applications KIP-714 extension : Observabilité
+KIP-1075: Introduce delayed remote list offsets purgatory to make LIST_OFFSETS async : Tiered Storage
+KIP-1074: Allow the replication of user internal topics : Connect & MM2
+KIP-1073: Return fenced brokers in DescribeCluster response : Protocoles & Groupes
+KIP-1070: deprecate MockProcessorContext : Kafka Streams
+KIP-1068: New metrics for the new KafkaConsumer : Observabilité
+KIP-1065: Add "retry" return-option to ProductionExceptionHandler : Kafka Streams
+KIP-1058: Txn consumer exerts pressure on remote storage when reading non-txn topic : Tiered Storage
+KIP-1056: Remove `default.` prefix for exception handler StreamsConfig : Kafka Streams
+KIP-1043: Administration of groups : Ops & Administration
+KIP-1041: Drop `offsets.commit.required.acks` config in 4.0 (deprecate in 3.8) : Clients
+KIP-1032: Upgrade to Jakarta and JavaEE 10 in Kafka 4.0 : Plateforme
+KIP-1022: Formatting and Updating Features : Ops & Administration
+KIP-1013: Drop broker and tools support for Java 11 in Kafka 4.0 (deprecate in 3.7) : Plateforme
+KIP-996: Pre-Vote : Protocoles & Groupes
+KIP-970: Deprecate and remove Connect's redundant task configurations endpoint : Connect & MM2
+KIP-932: Queues for Kafka : Protocoles & Groupes
+KIP-896: Remove old client protocol API versions in Kafka 4.0 : Protocoles & Groupes
+KIP-848: The Next Generation of the Consumer Rebalance Protocol : Protocoles & Groupes
+KIP-751: Drop support for Scala 2.12 in Kafka 4.0 (deprecate in 3.0) : Plateforme
+KIP-750: Drop support for Java 8 in Kafka 4.0 (deprecate in 3.0) : Plateforme
+KIP-724: Drop support for message formats v0 and v1 : Protocoles & Groupes
+KIP-653: Upgrade log4j to log4j2 : Plateforme
+
+
+
+Kafka Streams: 9
+Protocoles & Groupes: 7
+Ops & Administration: 6
+Plateforme: 5
+Clients: 4
+Observabilité: 3
+Tiered Storage: 3
+Connect & MM2: 3
+
+
+=== 4.1.0 - 18 KIP
+
+KIP-1166: Improve high-watermark replication : Plateforme
+KIP-1152: Add transactional ID pattern filter to ListTransactions API : Ops & Administration
+KIP-1143: Deprecated Optional<String> and return String from public Endpoint#listenerName : Plateforme
+KIP-1142: Allow to list non-existent group which has dynamic config : Ops & Administration
+KIP-1139: Add support for OAuth jwt-bearer grant type : Ops & Administration
+KIP-1131: Improved controller-side monitoring of broker states : Observabilité
+KIP-1118: Add Deadlock Protection on Producer Network Thread : Clients
+KIP-1111: Enforcing Explicit Naming for Kafka Streams Internal Topics : Kafka Streams
+KIP-1109: Unifying Kafka Consumer Topic Metrics : Observabilité
+KIP-1103: Additional metrics for cooperative consumption : Observabilité
+KIP-1101: Trigger rebalance on rack topology changes : Protocoles & Groupes
+KIP-1092: Extend Consumer#close with an option to leave the group or not : Clients
+KIP-1071: Streams Rebalance Protocol (early) : Protocoles & Groupes
+KIP-1050: Consistent error handling for Transactions : Clients
+KIP-1020: Move `window.size.ms` and `windowed.inner.class.serde` from `StreamsConfig` to TimeWindowedDe/Serializer and SessionWindowedDe/Serializer class : Kafka Streams
+KIP-891: Running multiple versions of Connector plugins : Connect & MM2
+KIP-890: Transactions Server-Side Defense : Protocoles & Groupes
+KIP-512: make Record Headers available in onAcknowledgement and onComplete : Clients
+
+Clients: 4
+Observabilité: 3
+Protocoles & Groupes: 3
+Ops & Administration: 3
+Kafka Streams: 2
+Plateforme: 2
+Connect & MM2: 1
+
+=== 4.2.0 - 28 KIP
+
+
+KIP-1230: Add config for file system permission
+KIP-1229: Add Idle Thread Ratio Metric to MetadataLoader 
+KIP-1227: Expose Rack ID in MemberDescription and ShareMemberDescription 
+KIP-1221: Add application-id tag to Kafka Streams state metric
+KIP-1217: Include push interval in ClientTelemetryReceiver context
+KIP-1216: Add rebalance listener metrics for Kafka Streams 
+KIP-1207: Fix anomaly of JMX metrics RequestHandlerAvgIdlePercent in kraft combined mode 
+KIP-1206: Strict max fetch records in share fetch
+KIP-1195: deprecate and remove org.apache.kafka.streams.errors.BrokerNotFoundException 
+KIP-1193: Deprecate MX4j support 
+KIP-1192: Add include argument to ConsumerPerformance tool 
+KIP-1190: Add a metric for controller thread idleness 
+KIP-1188: New ConnectorClientConfigOverridePolicy with allowlist of configurations 
+KIP-1186: Update AddRaftVoterRequest RPC to support auto-join 
+KIP-1180: Add generic feature level metrics 
+KIP-1179: Introduce remote.log.manager.follower.thread.pool.size config 
+KIP-1175: Fix the typo `PARTITIONER_ADPATIVE_PARTITIONING_ENABLE` in ProducerConfig 
+KIP-1172: Improve EndToEndLatency Tool with argument parser and message key/header support 
+KIP-1161: Unifying LIST-Type Configuration Validation and Default Values 
+KIP-1160: Enable returning supported features from a specific broker
+KIP-1153: Refactor Kafka Streams CloseOptions to Fluent API Style 
+KIP-1147: Improve consistency of command-line arguments 
+KIP-1120: AppInfo metrics don't contain the client-id 
+KIP-1100: Rename org.apache.kafka.server:type=AssignmentsManager and org.apache.kafka.storage.internals.log.RemoteStorageThreadPool metrics 
+KIP-1066: Mechanism to cordon brokers and log directories
+KIP-1054: Support External schema in JSONConvertor 
+KIP-1052: Enable warmup in producer performance test 
+KIP-1034: Dead letter queue in Kafka Streams 
+

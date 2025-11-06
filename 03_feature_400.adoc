@@ -1,0 +1,213 @@
+== 4.0.0
+
+=== Métriques clients via broker
+
+image::images/metrics.svg[opts=inline, width=100%, height=500]
+
+
+[.notes]
+--
+* problème : pas d'interface standard, manque de visibilité sur les métriques applicatives
+* *registerMetricForSubscription*(KafkaMetric metric) / *unregisterMetricFromSubscription*(KafkaMetric metric)
+* Résultat: *observabilité “complète”*
+* Types de métriques limités (sum/gauge) Sum : Compteur monotone (par exemple, nombre total de messages traités). Gauge : Valeur non monotone (par exemple, taux de traitement).
+--
+
+[%notitle]
+=== Implémentation métrique
+
+[.large-code-exemple]
+--
+
+[source,java,highlight=1..2|4..5|6..11|16..17]
+----
+Metrics local = new Metrics(new MetricConfig());
+Sensor messageSensor = local.sensor("message-count-sensor");
+
+LinkedHashMap<String, String> tags = new LinkedHashMap<>();
+tags.put("component", "my-app");
+MetricName metricName = new MetricName(
+    "total-messages-processed",
+    "application",
+    "Total messages processed",
+    tags
+);
+
+messageSensor.add(metricName, new CumulativeCount());
+KafkaMetric metric = local.metrics().get(metricName);
+
+consumer.registerMetricForSubscription(metric);
+consumer.unregisterMetricFromSubscription(metric);
+----
+
+--
+
+=== auto.offset.reset
+
+
+image:images/resetOffsetDuration.svg[opts=inline, width=100%]
+
+[.notes]
+--
+* Offset reset depuis une durée
+* Tirer parti du stockage longue durée (tiered storage)pour reprendre “à X temps en arrière”
+* usages : data analytics, reprise sur incident
+* KIP-1106
+--
+
+=== Format ISO-8601
+
+* PnDTnHnMn.nS
+* Exemples:
+** P30D → 30 jours
+** PT12H → 12 heures
+** P1DT30M → 1 jour et 30 minutes
+
+=== Topology
+
+image::images/topology.svg[opts=inline, width=70%]
+
+
+[.notes]
+--
+* problème: il faut créer un processor custom et l'injecter manuellement dans toutes les topologies
+* donne un “hook” officiel et propre pour injecter une couche transversale (log/metrics/tracing/tests) sur tous tes processors Streams (DSL/Processor API) via un ProcessorWrapper configurable au build de la topologie
+* KIP-1112
+--
+
+=== Implémentation exemple
+
+[.large-code-exemple]
+--
+
+[source,java,highlight=1..2|6..7|11..14|28..31|16..26|37..39]
+----
+public class LoggingProcessorWrapper<KIn, VIn, KOut, VOut> 
+  implements ProcessorWrapper<KIn, VIn, KOut, VOut> {
+
+...
+
+    private static class LoggingProcessor<KIn, VIn, KOut, VOut> 
+       implements Processor<KIn, VIn, KOut, VOut>, ProcessorContextAware {
+
+        ...
+
+        @Override
+        public void init(ProcessorContext<KOut, VOut> context) {
+            delegate.init(context);
+        }
+
+        @Override
+        public void process(Record<KIn, VIn> record) {
+            Instant start = Instant.now();
+            logger.info("Entrée dans le processeur");
+
+            delegate.process(record);
+
+            var duration = Duration.between(start, Instant.now());
+            logger.info("Sortie du processeur : durée={}", duration.toMillis());
+        }
+
+        @Override
+        public void close() {
+            delegate.close();
+        }
+    }
+}
+
+
+
+________________________________
+application.properties:
+
+processor.wrapper.class=com.mirakl.LoggingProcessorWrapper
+
+
+----
+
+--
+
+[.notes]
+--
+* introduit une interface ProcessorWrapper
+* wrapper au même titre que pattern delegate ou decorator
+* cas d'usage :
+** audit, logging, métriques, tracing
+** gestion d'erreurs/retry (ex: dead-letter queue)
+** possibilité de faire du feature flag
+* test : permet de simuler des erreurs pour valider le comportement de l'application, chaos wrapper
+* KIP-1112 - 4.0.0
+--
+
+
+=== Rebalance
+
+
+[%notitle]
+=== Avant
+
+image:images/classicRebalance.svg[opts=inline, width=80%]
+
+[.notes]
+--
+* problème : 
+** "stop the world" = "synchronisation barrier"
+** difficile de trouver la *root cause* car beaucoup d'échanges
+** s'il y a un *consumer qui a du lag* ? tout le groupe attend
+--
+
+[%notitle]
+=== Après
+
+image:images/consumerRebalance.svg[opts=inline, width=80%]
+
+[%notitle.blue.background]
+=== Perf consommation 
+
+image:images/throughputRebalance.png[]
+
+[.notes]
+--
+* provenance de l'étude : https://current.confluent.io/2024-sessions/the-performance-of-kafkas-new-consumer-rebalance-protocol
+* production constante à 29 MB/s
+* 1 consommateur *avec lag important* impacte tout le groupe
+--
+=== Consumer Group Protocol
+
+[.step.without-bullets]
+* 🔁 Rebalance incrémental
+* 🎯 Géré par le coordinator, facilite le débug
+* ⚙️ Activé par défaut côté serveur, côté client : `group.protocol=consumer`
+* ⚖️ Compromis : usage CPU côté serveur, empreinte mémoire plus élevée
+* 💻 Outils d'admin : kafka-groups.sh, kafka-consumer-groups.sh
+
+
+[.notes]
+--
+* ce n'est pas activé par défaut car il faut que le consumer et broker soient tous les 2 en 4.0
+* profite également à Kafka Connect car protocol conçu de manière générique : il assigne des ressources à des groupes
+* KIP-848 - 4.0.0
+--
+
+=== Streams rebalance protocol
+
+[.step.without-bullets]
+* 🧪 Early access en 4.1.0
+* 🧩 Se base sur le Consumer Group Protocol
+* 🔀 Même principe mais pour l'assignation des tâches Kafka Streams
+
+[.notes]
+--
+* KIP-1071
+--
+
+=== Queues
+
+[.step]
+en early access
+
+[.notes]
+--
+* On se garde ça pour plus tard car c'est en preview dans la 4.1.0
+* KIP-1099
+--

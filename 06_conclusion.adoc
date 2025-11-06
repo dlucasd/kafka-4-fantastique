@@ -1,0 +1,50 @@
+== Releases & Compatibilité
+
+[.step]
+* *~3 Releases/An*
+* Release mineure peut contenir des features majeures !
+** 2.8.0 : KRaft intro
+** 3.6.0 : Tiered Storage
+* *Support* : 3 dernières versions
+
+[.notes]
+--
+* source : https://cwiki.apache.org/confluence/display/KAFKA/Time+Based+Release+Plan
+--
+
+=== 4.2.0
+
+[.step.without-bullets]
+* 📅 Sortie pour janvier/février 2026
+* 📦 28 KIP figées
+* 📊 10 KIP sur l'observabilité
+* 📨 Dead letter queue native dans Kafka Streams
+
+[.notes]
+--
+* KIP-1034: Dead letter queue in Kafka Streams 
+* KIP-1052: Enable warmup in producer performance test 
+--
+
+
+[.columns.is-vcentered]
+=== Merci 🙏
+
+[.column]
+--
+image::images/qr-code-feedback.svg[width=60%]
+Feedback
+--
+
+[.column]
+--
+image::images/qr-code-github.svg[width=60%]
+Github
+--
+
+[.notes]
+--
+* https://q-r-code.fr/
+--
+
+
