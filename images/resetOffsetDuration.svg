@@ -520,7 +520,7 @@
                                                     style="display: inline-block; font-size: 12px; font-family: Helvetica; color: light-dark(#000000, #ffffff); line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">
                                                     <font color="#ffffff"
                                                         style="font-size: 20px; color: rgb(255, 255, 255);"><span
-                                                            style="text-wrap-mode: nowrap;">earliest </span></font><span
+                                                            style="text-wrap-mode: nowrap;">latest </span></font><span
                                                         style="color: rgb(255, 255, 255); font-size: 20px; text-wrap-mode: nowrap;">(default)</span>
                                                 </div>
                                             </div>
@@ -567,7 +567,7 @@
                                                     style="display: inline-block; font-size: 12px; font-family: Helvetica; color: light-dark(#000000, #ffffff); line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">
                                                     <font color="#ffffff"
                                                         style="font-size: 20px; color: rgb(255, 255, 255);"><span
-                                                            style="text-wrap-mode: nowrap;">latest</span></font>
+                                                            style="text-wrap-mode: nowrap;">earliest</span></font>
                                                 </div>
                                             </div>
                                         </div>
