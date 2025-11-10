@@ -10,10 +10,10 @@
 body::after {
     content: url("../images/logo_event.png");
     position: fixed;
-    left: -450px;
-    bottom: -145px;
-    transform: scale(0.15);
-    /* pour dev fest filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.70)) drop-shadow(0 2px 8px rgba(0, 0, 0, 0.30)); */
+    left: -370px;
+    bottom: -60px;
+    transform: scale(0.20);
+    filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.70)) drop-shadow(0 2px 8px rgba(0, 0, 0, 0.30));
 }
 
 .reveal .slide-background:first-of-type {
