@@ -1,0 +1,76 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Serif:ital,opsz,wght@0,8..144,100..900;1,8..144,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+:root {
+    --r-main-font: "Roboto Serif", Georgia, "Times New Roman", serif;
+    --r-heading-font: "Roboto Serif", Georgia, "Times New Roman", serif;
+    --r-heading-text-transform: none;
+    --r-heading1-size: 2em;
+}
+
+body::after {
+    content: url("../images/logo_event.png");
+    position: fixed;
+    left: -370px;
+    bottom: -60px;
+    transform: scale(0.20);
+    filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.70)) drop-shadow(0 2px 8px rgba(0, 0, 0, 0.30));
+}
+
+.reveal .slide-background:first-of-type {
+    position: relative;
+}
+
+.reveal .slide-background:first-of-type::after {
+    content: "";
+    position: absolute;
+    right: -90px;
+    bottom: 10px;
+    width: 400px;
+    aspect-ratio: 3.25 / 1;
+    height: auto;
+
+    background-image: url("../images/Logo-Mirakl-White-Standard.png");
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    pointer-events: none;
+}
+
+.reveal::after {
+    content: "";
+    position: fixed;
+    right: -90px;
+    bottom: 10px;
+    width: 400px;
+    aspect-ratio: 3.25 / 1;
+    height: auto;
+    background: url("../images/Logo-Mirakl.png") no-repeat center / contain;
+    pointer-events: none;
+    opacity: 1;
+}
+
+:root:has(.reveal .slides > section:first-of-type.present) .reveal::after {
+    display: none;
+}
+
+.reveal .progress {
+    color: #03182f;
+}
+
+.large-code-exemple pre.code-wrapper {
+    width: 100%;
+}
+
+.large-code-exemple pre.code-wrapper code {
+    overflow-x: hidden;
+    overflow-y: scroll;
+}
+
+.without-bullets ul li{
+  list-style: none;
+}
+
+section.blue.background {
+    background-color: #F4F7FF;
+}
+
