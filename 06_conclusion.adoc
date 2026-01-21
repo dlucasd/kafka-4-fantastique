@@ -27,14 +27,14 @@
 --
 
 
-[.columns.is-vcentered]
+//[.columns.is-vcentered]
 === Merci 🙏
 
-[.column]
---
-image::images/qr-code-feedback.svg[width=60%]
-Feedback
---
+//[.column]
+//--
+//image::images/qr-code-feedback.svg[width=60%]
+//Feedback
+//--
 
 [.column]
 --

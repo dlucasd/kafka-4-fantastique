@@ -10,8 +10,8 @@
 body::after {
     content: url("../images/logo_event.png");
     position: fixed;
-    left: -370px;
-    bottom: -60px;
+    left: -280px;
+    bottom: -110px;
     transform: scale(0.20);
     filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.70)) drop-shadow(0 2px 8px rgba(0, 0, 0, 0.30));
 }

@@ -4,11 +4,17 @@
 === Spring
 
 [.step.without-bullets]
-* *Version*: Spring Kafka 4.0.0-RC1
+* *Version*: Spring Kafka 4.0.0
 * 🛠️ Passage total à KRaft, suppression ZooKeeper
 * 🧪 Embedded Kafka pour les tests sur KRaft
 * 🔄 Nouveau protocole rebalance (propriété Spring Boot)
 * 👥 Support Kafka Queues
+
+[.notes]
+--
+* sortie fin novembre 2025
+* actuelle : 4.0.2
+--
 
 [%notitle]
 === Suite
