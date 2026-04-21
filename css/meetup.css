@@ -1,5 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Serif:ital,opsz,wght@0,8..144,100..900;1,8..144,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
 
+@font-face {
+    font-family: "Pirulen";
+    src: url("../fonts/pirulen_rg.otf") format("opentype");
+    font-weight: normal;
+    font-style: normal;
+}
+
 :root {
     --r-main-font: "Roboto Serif", Georgia, "Times New Roman", serif;
     --r-heading-font: "Roboto Serif", Georgia, "Times New Roman", serif;
@@ -8,12 +15,20 @@
 }
 
 body::after {
-    content: url("../images/logo_event.png");
+    content: "";
     position: fixed;
-    left: -280px;
-    bottom: -110px;
-    transform: scale(0.20);
-    filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.70)) drop-shadow(0 2px 8px rgba(0, 0, 0, 0.30));
+    left: 40px;
+    bottom: 30px;
+    width: 220px;
+    aspect-ratio: 600 / 221;
+    background: url("../images/logo_devoxx_black.svg") no-repeat center / contain;
+    pointer-events: none;
+}
+
+:root:has(.reveal .slides > section:first-of-type.present) body::after {
+    aspect-ratio: 749.68 / 214.54;
+    background-image: url("../images/logo_devoxx.svg");
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.55));
 }
 
 .reveal .slide-background:first-of-type {
@@ -34,6 +49,7 @@ body::after {
     background-size: contain;
     background-position: center;
     pointer-events: none;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.55));
 }
 
 .reveal::after {
@@ -51,6 +67,26 @@ body::after {
 
 :root:has(.reveal .slides > section:first-of-type.present) .reveal::after {
     display: none;
+}
+
+.reveal .slides > section.title {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-end !important;
+    align-items: center !important;
+    height: 100% !important;
+    top: -20% !important;
+}
+
+.reveal .slides > section.title h1 {
+    margin: 0 !important;
+    text-align: center;
+    color: #FFD966;
+    font-family: "Pirulen", "Poppins", "Roboto", sans-serif;
+    font-size: 2.5vw;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    text-shadow: 0 3px 12px rgba(0, 0, 0, 0.85), 0 0 24px rgba(0, 0, 0, 0.6);
 }
 
 .reveal .progress {
