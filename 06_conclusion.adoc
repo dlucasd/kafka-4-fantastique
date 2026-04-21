@@ -5,6 +5,7 @@
 * Release mineure peut contenir des features majeures !
 ** 2.8.0 : KRaft intro
 ** 3.6.0 : Tiered Storage
+** 4.2.0 : Queues   
 * *Support* : 3 dernières versions
 
 [.notes]
@@ -12,29 +13,30 @@
 * source : https://cwiki.apache.org/confluence/display/KAFKA/Time+Based+Release+Plan
 --
 
-=== 4.2.0
+=== 4.3.0
 
 [.step.without-bullets]
-* 📅 Sortie pour janvier/février 2026
-* 📦 28 KIP figées
-* 📊 10 KIP sur l'observabilité
-* 📨 Dead letter queue native dans Kafka Streams
+* 📅 Prévue pour mai 2026
+* 📦 ~22 KIP
+* ⚠️ Dépréciation du Classic rebalance protocol (phase 1)
+* 🔧 Cordon brokers & log directories
 
 [.notes]
 --
-* KIP-1034: Dead letter queue in Kafka Streams 
-* KIP-1052: Enable warmup in producer performance test 
+* Release manager : Mickael Maison
+* KIP-1274: Deprecate Classic rebalance protocol (Phase 1)
+* KIP-1066: Cordon brokers: Mecanisme pour marquer un broker ou un disque comme 'isoler', utile pour le décommissionnement
 --
 
 
-//[.columns.is-vcentered]
+[.columns.is-vcentered]
 === Merci 🙏
 
-//[.column]
-//--
-//image::images/qr-code-feedback.svg[width=60%]
-//Feedback
-//--
+[.column]
+--
+image::images/qr-code-feedback.svg[width=60%]
+Feedback
+--
 
 [.column]
 --

@@ -60,15 +60,15 @@ image::images/mirakl.svg[opts=inline, width=120%]
   <g transform="translate(110,60)">
     <!-- Grille -->
     <g>
-      <line class="grid" x1="0" y1="480" x2="1280" y2="480"/>
-      <line class="grid" x1="0" y1="360" x2="1280" y2="360"/>
-      <line class="grid" x1="0" y1="240" x2="1280" y2="240"/>
-      <line class="grid" x1="0" y1="120" x2="1280" y2="120"/>
-      <line class="grid" x1="0" y1="0"   x2="1280" y2="0"/>
+      <line class="grid" x1="0" y1="480" x2="1340.95" y2="480"/>
+      <line class="grid" x1="0" y1="360" x2="1340.95" y2="360"/>
+      <line class="grid" x1="0" y1="240" x2="1340.95" y2="240"/>
+      <line class="grid" x1="0" y1="120" x2="1340.95" y2="120"/>
+      <line class="grid" x1="0" y1="0"   x2="1340.95" y2="0"/>
     </g>
 
     <!-- Axes -->
-    <line class="axis" x1="0" y1="480" x2="1280" y2="480"/>
+    <line class="axis" x1="0" y1="480" x2="1340.95" y2="480"/>
     <line class="axis" x1="0" y1="0"   x2="0"    y2="480"/>
 
     <!-- Ticks Y -->
@@ -103,7 +103,8 @@ image::images/mirakl.svg[opts=inline, width=120%]
         L1158.10,313.3
         L1219.05,13.6
         L1280.00,43.5
-        L1280,480 L0,480 Z"/>
+        L1340.95,221.1
+        L1340.95,480 L0,480 Z"/>
       <!-- Ligne -->
       <path class="line" d="
         M0,340.5
@@ -127,7 +128,8 @@ image::images/mirakl.svg[opts=inline, width=120%]
         L1097.14,187.5
         L1158.10,313.3
         L1219.05,13.6
-        L1280.00,43.5"/>
+        L1280.00,43.5
+        L1340.95,221.1"/>
       <!-- Points -->
       <g>
         <circle class="dot" cx="0" cy="340.5" r="5"/>
@@ -152,6 +154,7 @@ image::images/mirakl.svg[opts=inline, width=120%]
         <circle class="dot" cx="1158.10" cy="313.3" r="5"/>
         <circle class="dot" cx="1219.05" cy="13.6" r="5"/>
         <circle class="dot" cx="1280.00" cy="43.5" r="5"/>
+        <circle class="dot" cx="1340.95" cy="221.1" r="5"/>
       </g>
     </g>
 
@@ -175,6 +178,10 @@ image::images/mirakl.svg[opts=inline, width=120%]
       <g class="fragment">
       <text class="xlabel" x="1280.00" y="94">4.1.0</text>
       <text class="xlabel" x="1280.00" y="114">09/2025</text>
+      </g>
+      <g class="fragment">
+      <text class="xlabel" x="1340.95" y="506">4.2.0</text>
+      <text class="xlabel" x="1340.95" y="526">02/2026</text>
       </g>
     </g>
     
@@ -210,7 +217,111 @@ image::images/mirakl.svg[opts=inline, width=120%]
 [%notitle]
 === KIP
 
-image:images/heatMap.svg[width=80%]
+[.chart-svg]
+++++
+<svg viewBox="0 0 1080 575" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Répartition des KIP par thématique">
+  <defs>
+    <style>
+      .hm-text { font-family: "Roboto","Inter",system-ui,sans-serif; }
+      .hm-title { font-size: 26px; font-weight: 700; fill: rgba(0,0,0,0.85); text-anchor: middle; }
+      .hm-col { font-size: 20px; font-weight: 600; fill: rgba(0,0,0,0.85); text-anchor: middle; }
+      .hm-row { font-size: 17px; font-weight: 500; fill: rgba(0,0,0,0.82); dominant-baseline: central; }
+      .hm-val { font-size: 22px; font-weight: 600; fill: rgba(0,0,0,0.88); text-anchor: middle; dominant-baseline: central; }
+      .hm-val-l { font-size: 22px; font-weight: 600; fill: #ffffff; text-anchor: middle; dominant-baseline: central; }
+      .hm-tot { font-size: 22px; font-weight: 700; fill: rgba(0,0,0,0.88); text-anchor: middle; dominant-baseline: central; }
+    </style>
+  </defs>
+
+  <g class="hm-text">
+
+    <text class="hm-col" x="440" y="92">4.0.0 - 40 KIP</text>
+    <text class="hm-col" x="600" y="92">4.1.0 - 18 KIP</text>
+    <text class="hm-col" x="760" y="92">4.2.0 - 38 KIP</text>
+    <text class="hm-col" x="930" y="92">Total</text>
+
+    <!-- Kafka Streams (9, 2, 7) -->
+    <text class="hm-row" x="30" y="137">Kafka Streams</text>
+    <rect x="360" y="110" width="160" height="55" fill="rgba(41,167,181,1.00)"/>
+    <text class="hm-val-l" x="440" y="137">9</text>
+    <rect x="520" y="110" width="160" height="55" fill="rgba(41,167,181,0.22)"/>
+    <text class="hm-val" x="600" y="137">2</text>
+    <rect x="680" y="110" width="160" height="55" fill="rgba(41,167,181,0.78)"/>
+    <text class="hm-val-l" x="760" y="137">7</text>
+    <text class="hm-tot" x="930" y="137">18</text>
+
+    <!-- Protocoles &amp; Groupes (7, 3, 8) -->
+    <text class="hm-row" x="30" y="192">Protocoles &amp; Groupes</text>
+    <rect x="360" y="165" width="160" height="55" fill="rgba(41,167,181,0.78)"/>
+    <text class="hm-val-l" x="440" y="192">7</text>
+    <rect x="520" y="165" width="160" height="55" fill="rgba(41,167,181,0.33)"/>
+    <text class="hm-val" x="600" y="192">3</text>
+    <rect x="680" y="165" width="160" height="55" fill="rgba(41,167,181,0.89)"/>
+    <text class="hm-val-l" x="760" y="192">8</text>
+    <text class="hm-tot" x="930" y="192">18</text>
+
+    <!-- Observabilité (3, 3, 7) -->
+    <text class="hm-row" x="30" y="247">Observabilité</text>
+    <rect x="360" y="220" width="160" height="55" fill="rgba(41,167,181,0.33)"/>
+    <text class="hm-val" x="440" y="247">3</text>
+    <rect x="520" y="220" width="160" height="55" fill="rgba(41,167,181,0.33)"/>
+    <text class="hm-val" x="600" y="247">3</text>
+    <rect x="680" y="220" width="160" height="55" fill="rgba(41,167,181,0.78)"/>
+    <text class="hm-val-l" x="760" y="247">7</text>
+    <text class="hm-tot" x="930" y="247">13</text>
+
+    <!-- Ops &amp; Administration (6, 3, 4) -->
+    <text class="hm-row" x="30" y="302">Ops &amp; Administration</text>
+    <rect x="360" y="275" width="160" height="55" fill="rgba(41,167,181,0.67)"/>
+    <text class="hm-val-l" x="440" y="302">6</text>
+    <rect x="520" y="275" width="160" height="55" fill="rgba(41,167,181,0.33)"/>
+    <text class="hm-val" x="600" y="302">3</text>
+    <rect x="680" y="275" width="160" height="55" fill="rgba(41,167,181,0.44)"/>
+    <text class="hm-val" x="760" y="302">4</text>
+    <text class="hm-tot" x="930" y="302">13</text>
+
+    <!-- Clients (4, 4, 5) -->
+    <text class="hm-row" x="30" y="357">Clients</text>
+    <rect x="360" y="330" width="160" height="55" fill="rgba(41,167,181,0.44)"/>
+    <text class="hm-val" x="440" y="357">4</text>
+    <rect x="520" y="330" width="160" height="55" fill="rgba(41,167,181,0.44)"/>
+    <text class="hm-val" x="600" y="357">4</text>
+    <rect x="680" y="330" width="160" height="55" fill="rgba(41,167,181,0.56)"/>
+    <text class="hm-val-l" x="760" y="357">5</text>
+    <text class="hm-tot" x="930" y="357">13</text>
+
+    <!-- Plateforme (5, 2, 3) -->
+    <text class="hm-row" x="30" y="412">Plateforme</text>
+    <rect x="360" y="385" width="160" height="55" fill="rgba(41,167,181,0.56)"/>
+    <text class="hm-val-l" x="440" y="412">5</text>
+    <rect x="520" y="385" width="160" height="55" fill="rgba(41,167,181,0.22)"/>
+    <text class="hm-val" x="600" y="412">2</text>
+    <rect x="680" y="385" width="160" height="55" fill="rgba(41,167,181,0.33)"/>
+    <text class="hm-val" x="760" y="412">3</text>
+    <text class="hm-tot" x="930" y="412">10</text>
+
+    <!-- Connect &amp; MM2 (3, 1, 2) -->
+    <text class="hm-row" x="30" y="467">Connect &amp; MM2</text>
+    <rect x="360" y="440" width="160" height="55" fill="rgba(41,167,181,0.33)"/>
+    <text class="hm-val" x="440" y="467">3</text>
+    <rect x="520" y="440" width="160" height="55" fill="rgba(41,167,181,0.11)"/>
+    <text class="hm-val" x="600" y="467">1</text>
+    <rect x="680" y="440" width="160" height="55" fill="rgba(41,167,181,0.22)"/>
+    <text class="hm-val" x="760" y="467">2</text>
+    <text class="hm-tot" x="930" y="467">6</text>
+
+    <!-- Tiered Storage (3, 0, 2) -->
+    <text class="hm-row" x="30" y="522">Tiered Storage</text>
+    <rect x="360" y="495" width="160" height="55" fill="rgba(41,167,181,0.33)"/>
+    <text class="hm-val" x="440" y="522">3</text>
+    <rect x="520" y="495" width="160" height="55" fill="rgba(41,167,181,0.05)"/>
+    <text class="hm-val" x="600" y="522">0</text>
+    <rect x="680" y="495" width="160" height="55" fill="rgba(41,167,181,0.22)"/>
+    <text class="hm-val" x="760" y="522">2</text>
+    <text class="hm-tot" x="930" y="522">5</text>
+
+  </g>
+</svg>
+++++
 
 
 [.notes]

@@ -27,6 +27,7 @@
 --
 * Réduire le coût de maintenance multi-JDK
 * KIP-720 : MirrorMaker 1 supprimé
+* 4.2.0 : support java 25
 * KIP-750 : java
 * KIP-751 : scala
 * KIP-1032 : jakarta / javaEE
@@ -78,32 +79,12 @@
 
 === Config par défaut modifiée
 
-[.step.without-bullets]
-* ⏱️ **linger.ms**: 0 ms → **5 ms** (batching ↑, latence +~5 ms)
-* ⏱️ **(log.)message.timestamp.after.max.ms**: ∞ → **1 h** (protège des timestamps “futurs”)
-
-[.notes]
---
-* linger.ms: batching par défaut plus efficace. le batch.size permet toujours de déclencher l'envoi.
-* after.max: éviter rotations anormaux si des timestamps “futurs” sont envoyés par erreur
-* KIP-1030
---
-
-[%notitle]
-=== Config par défaut modifiée
-
-[.step.without-bullets]
-* 📝 **(log.)segment.bytes (min)**: 14 B → **1 MB** (évite micro-segments)
-* **num.recovery.threads.per.data.dir**: 1 → **2** (rétablissement plus rapide)
-
-[.notes]
---
-* segment.bytes: attention c'est le min, pas le default
-* recovery.threads: *rétablissement* plus rapide après arrêt non propre, il faut adapter au nombre de coeurs
-* d'autres configs à aller voir
-* KIP-1030
---
-
+[.step]
+* linger.ms: 0 ms → 5 ms
+* message.timestamp.after.max.ms: ∞ → 1 h
+* segment.bytes (min): 14 B → 1 MB
+* num.recovery.threads.per.data.dir: 1 → 2
+* ...
 
 [%notitle%auto-animate]
 === Zookeeper

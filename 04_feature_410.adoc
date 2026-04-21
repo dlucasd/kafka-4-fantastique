@@ -11,10 +11,10 @@
 === Qu'est-ce qu'un plugin Kafka ?
 
 [.step]
-* *Broker*: Authorizer, CreateTopicPolicy, ClientQuotaCallback, ReplicaSelector
 * *Producer*: Serializer, Partitioner, ProducerInterceptor
 * *Consumer*: Deserializer, ConsumerInterceptor
 * *Connect*: Converter, Transform, Predicate, Connector, Task
+* *Broker*: Authorizer, CreateTopicPolicy, ClientQuotaCallback, ReplicaSelector
 
 [.notes]
 --
@@ -58,28 +58,6 @@ public class MyInterceptor<K, V>
 * deux nouvelles interfaces : Monitorable et PluginMetrics
 * facilité : métriques attachées au Metrics du composant hôte, taguées automatiquement pour identifier le plugin.
 * plus besoin de gérer les reporters : c'est fait automatiquement.
---
-
-=== Migration métriques consumer
-
-[.step]
-* *Problème*:
-** Producer: `topic.a.b` ✅
-** Consumer: `topic.a.b` → `topic_a_b` ❌
-
-[.step]
-* *Solution*:
-** 4.x: Ajoute `topic.a.b` (nouveau) + conservation `topic_a_b` (déprécié)
-** 5.0: Seulement `topic.a.b` 🎉
-
-
-[.notes]
---
-* qui met des points dans les noms de ses topics ?
-* problème : les points sont *remplacés par des underscores*
-* pourquoi ? *code legacy* pour s'*aligner avec le modèle de graphite*
-* Identifiez vos dashboards avec `topic_a_b` et Migrez vers `topic.a.b` avant 5.0
-* KIP-1109
 --
 
 === OAuth2 grant type
@@ -143,115 +121,3 @@ opt/
 * notation maven range
 * API mise à jour
 --
-
-=== Queues for Kafka
-
-[.step.without-bullets]
-* Nouvelle manière de consommer un topic
-
-=== Rappel consommateur classique
-
-image:images/consumerClassic.svg[]
-
-=== Rappel Point à point / Queue
-
-[.step.without-bullets]
-* 👤 Message consommé par un seul consommateur
-* 🔄 Traitement asynchrone
-* ✅ Acquittement au message
-* 🗑️ Suppression du message après traitement
-
-[.notes]
---
-* en *fonction de la configuration* du broker
-* Non ce n'est pas ce qui a été implémenté
---
-
-=== Share Groups
-
-[.step.without-bullets]
-* 🔧 API identique au consumer group
-* ➗ Permet la consommation de messages d'*une seule partition* par plusieurs consommateurs
-* ✅ Acquittement au message
-
-[%notitle]
-=== Schéma
-
-image:images/shareConsumer.svg[]
-
-[.notes]
---
-* *plus de limite* de consommateurs par topic
-* les deux types de consommateurs peuvent *cohabiter*
---
-
-
-=== Acquittement
-
-[.step]
-* `share.acknowledgement.mode=implicit` (default) : acquittement automatique lors du poll()
-* `share.acknowledgement.mode=explicit`
-
-=== Explicite
-
-[source,java,highlight=1..5|6..7|9..13|15..16|18..20|21..23]
-----
-@️KafkaListener(
-    topics = "order-processing",
-    groupId = "order-processors",
-    containerFactory = "shareKafkaListenerContainerFactory"
-)
-public void processOrder(OrderEvent event,
-                         ShareAcknowledgment acknowledgment) {
-  try {
-    if (!isValid(event)) {
-      log.info("Rejet du message, ne sera pas re-deliveré");
-      acknowledgment.reject();
-      return;
-    }
-
-    orderService.process(event);
-    acknowledgment.acknowledge();
-
-  } catch (TransientException e) {
-    log.info("Erreur temporaire, rejeu possible");
-    acknowledgment.release();
-  } catch (PermanentException e) {
-    log.info("Rejet du message, ne sera pas re-deliveré");
-    acknowledgment.reject();
-  }
-}
-----
-
-[%notitle]
-=== RecordState
-
-image:images/recordState.svg[opts=inline, width=80%]
-
-
-=== Nouvelles propriétés
-
-[.step]
-* `share.delivery.count.limit: 5`
-* `share.record.lock.duration.ms: 30000` (30 sec)
-
-=== Cas d'usage
-
-[.step.without-bullets]
-* ✉️ Nécessité d'acquittement au message avec rejeu/rejet
-* 📈 Mise à l'échelle sans garantie d'ordre
-* 🔁 Faciliter la migration de système type queue vers Kafka
-
-=== Preview
-
-[.step.without-bullets]
-* 🚀 Production ready pour la 4.2.0
-* 💻 Outil d'admin : kafka-share-groups.sh
-* 📨 Intégration de Dead Letter Queue
-* ❓ Garantie d'ordre en réflexion
-
-[.notes]
---
-* KIP-932 
---
-

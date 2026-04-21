@@ -13,7 +13,7 @@
 [.notes]
 --
 * sortie fin novembre 2025
-* actuelle : 4.0.2
+* actuelle : 4.0.5
 --
 
 [%notitle]
@@ -22,12 +22,10 @@
 [.step.without-bullets]
 * 📊 Observabilité enrichie avec les métriques clients
 * 🎯 Alignement Spring Framework 7: Jackson 3, Spring Retry natif
-* ⚠️ RC, release pour fin d'année
 
 [.notes]
 --
 * La dépendance Spring Retry est supprimée au profit du support retry natif de Spring Framework 7.
-* attention si vous utilisiez zookeeperPort, zkConnectionTimeout, and zkSessionTimeout
 * https://docs.spring.io/spring-kafka/reference/4.0/whats-new.html
 --
 

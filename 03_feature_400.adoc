@@ -116,22 +116,12 @@ image:images/throughputRebalance.png[]
 === Streams rebalance protocol
 
 [.step.without-bullets]
-* 🧪 Early access en 4.1.0
+* ✔ *GA en 4.2.0*
 * 🧩 Se base sur le Consumer Group Protocol
 * 🔀 Même principe mais pour l'assignation des tâches Kafka Streams
 
 [.notes]
 --
+* GA en 4.2.0 avec un feature set limité : ne gère pas les assignors custom
 * KIP-1071
---
-
-=== Queues
-
-[.step]
-en early access
-
-[.notes]
---
-* On se garde ça pour plus tard car c'est en preview dans la 4.1.0
-* KIP-1099
 --

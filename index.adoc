@@ -8,7 +8,10 @@
 :revealjs_history: true
 :revealjs_pdfseparatefragments: false
 :customcss: css/meetup.css
-:title-slide-background-color: #03182f
+//:title-slide-background-color: #03182f
+:title-slide-background-image: images/fantastic_four_robots.png
+:title-slide-background-size: fill
+:title-slide-filter: blur(4px)
 
 // primary
 // dark #03182f
@@ -28,6 +31,7 @@ include::01_intro.adoc[]
 include::02_migration.adoc[]
 include::03_feature_400.adoc[]
 include::04_feature_410.adoc[]
+include::04bis_feature_420.adoc[]
 include::05_frameworks.adoc[]
 include::06_conclusion.adoc[]
 include::07_encore.adoc[]
